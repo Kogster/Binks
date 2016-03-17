@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="binks" default="compile" basedir=".">
+	<property name="ant.reuse.loader" value="true" />
+	<description>
+	    Compiles and assembles a jarfile appropriate for jar in jar launching with plattform specific swt-jar
+	  </description>
+
+	<property name="base.dir" location="" />
+	<property name="main-class" value="coverDetecter.CoverDetecter" />
+	<property name="jarName" value="theJar.jar" />
+	<property name="build" location="build" />
+	<property name="dist" location="dist" />
+	<property name="src" location="src" />
+	<property name="loader" location="${build}/loader" />
+	<property name="subJar" location="${build}/subJar" />
+	<property name="lib" location="lib" />
+	<property name="loader-main" value="binks.Loaderr" />
+
+	<target name="jar" description="--> make a jar file for this project">
+			<delete file="${jar.file}"/>
+			<delete dir="target/temp" />
+			<delete dir="target/classes" />
+	</target>
+	
+	<target name="init" depends="clean">
+		<tstamp />
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}" />
+		<mkdir dir="${loader}" />
+		<mkdir dir="${build}/compiled" />
+		<mkdir dir="${configurator.dir}" />
+	</target>
+
+	<target name="pack-resources">
+		<delete file="${build.dir}/${ant.project.name}.zip" />
+		<zip destfile="${build.dir}/${ant.project.name}.zip">
+			<zipfileset dir="${configurator.dir}" prefix="configurator" />
+		</zip>
+	</target>
+	
+	<target name="copy-configurator-script" description="--> copies script">
+			<copy file="${base.dir}/startOJConfigurator.bat" todir="${configurator.dir}" />
+			<copy file="${base.dir}/log4j.properties" todir="${configurator.dir}" />
+	</target>
+
+	<target name="compile" depends="clean,init,compileActual,moveClasses,addLibraries,
+		addResources,buildSubJar,buildMainJar,dist,copy-configurator-script,pack-resources">
+		<!-- Due to how this project is built this target overides the target in master.xml and forces the
+		 execution of several targets in this build-file through the depends parameter. The reason for doing
+		  this is that the required and expected structure for this particular jar (to enable the custom jar-
+		  in-jar loading) is delt with here and not practical to intergrate in the master.xml-->
+	</target>
+
+	<target name="compileActual" description="compile the source">
+
+		<javac destdir="${build}/compiled" debug="true" target="${compiler.version}" includeantruntime="false">
+			<src path="${src}" />
+			<classpath>
+				<pathelement path="${lib}/jar-in-jar-loader/" />
+
+
+				<pathelement path="${lib}/runtime/comm.jar" />
+				<pathelement path="${lib}/platformlib/linux-64/comm.jar" />
+
+				<pathelement path="${lib}/runtime/com.scancoin.core.api.configurator.jar" />
+				<pathelement path="${lib}/runtime/log4j.jar" />
+
+				<pathelement path="${lib}/runtime/opencv-300.jar" />
+
+				<pathelement path="${lib}/platformlib/windows-32/swt-windows-32.jar" />
+				<!-- Doesn't matter which plattforms swt-jar. It is compiled against the API. -->
+
+				<pathelement path="${lib}/runtime/nrjavaserial.jar" />
+
+				<pathelement path="${lib}/org.eclipse.core.commands_3.3.0.I20070605-0010.jar" />
+				<pathelement path="${lib}/org.eclipse.core.jobs_3.5.1.R36x_v20100824.jar" />
+				<pathelement path="${lib}/org.eclipse.core.resources_3.6.1.R36x_v20110131-1630.jar" />
+				<pathelement path="${lib}/org.eclipse.equinox.common_3.3.0.v20070426.jar" />
+				<pathelement path="${lib}/org.eclipse.jface_3.3.0.I20070606-0010.jar" />
+				<pathelement path="${lib}/org.eclipse.ui.editors_3.6.1.r361_v20100825-0800.jar" />
+				<pathelement path="${lib}/org.eclipse.ui.workbench_3.6.1.M20100826-1330.jar" />
+
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="moveClasses" description="Move .class files in preparation for jarring">
+
+		<move todir="${loader}/com/scancoin/configuration/preLoader">
+			<fileset dir="${build}/compiled/com/scancoin/configuration/preLoader" />
+		</move>
+		<move todir="${subJar}/">
+			<fileset dir="${build}/compiled/" />
+		</move>
+	</target>
+
+
+	<target name="addLibraries">
+		<!-- Copy to loader jar libraries required to launch the subJar  -->
+		<copy todir="${loader}/lib">
+			<fileset dir="${lib}">
+				<include name="*.jar" />
+			</fileset>
+		</copy>
+		<copy todir="${loader}">
+			<fileset dir="${lib}/jar-in-jar-loader/" />
+		</copy>
+		<mkdir dir="${loader}/platformlib" />
+		<copy todir="${loader}/platformlib">
+			<fileset dir="${lib}/platformlib">
+				<exclude name="*/RXTXcomm.jar" />
+			</fileset>
+		</copy>
+		<copy todir="${loader}/lib">
+			<fileset dir="${lib}/runtime" />
+		</copy>
+	</target>
+
+	<target name="addResources">
+		<!-- add file with name of the main class that contains main so that the loader can find it. -->
+		<mkdir dir="${loader}/META-INF" />
+		<touch file="${loader}/META-INF/subJarMainName.prop" />
+		<echo message="${main-class}" file="${loader}/META-INF/subJarMainName.prop" />
+		<move file="${subJar}/PlaceholderLaunchScreen.png" todir="${loader}" />
+	</target>
+
+	<target name="buildSubJar">
+		<jar jarfile="${loader}/Configuration.jar" basedir="${subJar}">
+			<manifest>
+				<attribute name="Main-Class" value="{main-class}" />
+				<attribute name="Class-Path" value="." />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="buildMainJar" description="generate the distribution">
+		<!-- Create the distribution directory -->
+		<jar jarfile="${build}/${jarName}" basedir="${loader}">
+			<manifest>
+				<attribute name="Main-Class" value="${loader-main}" />
+				<attribute name="Class-Path" value="." />
+				<attribute name="Rscr" value="." />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="dist">
+		<move file="${build}/${jarName}" todir="${configurator.dir}" />
+		<echo message="${build}/${jarName}   ${dist}" />
+	</target>
+
+
+	<target name="clean" description="clean up">
+		<!-- Delete the ${build} directory tree -->
+		<delete dir="${build}" />
+	</target>
+
+</project>
