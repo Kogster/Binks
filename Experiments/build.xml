@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="binks.testing" default="compile" basedir="." >
+<project name="binks.testing" default="compile-run" basedir="." >
 
 
 	<property name="main-class" value="testExtract.TestExtract" />
@@ -27,6 +27,10 @@
 	<target name="compile" depends="prepare,init,compileActual,addLibraries,
 		buildJar,clean">
 	</target>
+	
+	<target name="compile-run" depends="prepare,init,compileActual,addLibraries,
+			buildJar,clean,run">
+	</target>
 
 	<target name="compileActual" description="compile the source">
 		<javac destdir="${build}/compiled" debug="true" target="1.8" includeantruntime="false">
@@ -34,7 +38,7 @@
 		</javac>
 	</target>
 
-	<target name="addLibraries">
+	<target name="addLibraries" depends="compileActual">
 		<!-- Copy to loader jar libraries required to launch the subJar  -->
 		<mkdir dir="${compiled}/lib" />
 		<copy todir="${compiled}/lib">
@@ -44,7 +48,7 @@
 		</copy>
 	</target>
 
-	<target name="buildJar" description="generate the distribution">
+	<target name="buildJar" depends="addLibraries">
 		<!-- Create the distribution directory -->
 		<jar destfile="${dist}/theJar.jar" basedir="${compiled}">
 			<manifest>
@@ -52,6 +56,15 @@
 				<attribute name="Class-Path" value="." />
 			</manifest>
 		</jar>
+	</target>
+	
+	<target name="run" depends="buildJar">
+		<java dir="${dist}" jar="${dist}/theJar.jar" fork="true" failonerror="true" maxmemory="128m">
+			<arg value="-h" />
+			<classpath>
+				<pathelement path="${java.class.path}" />
+			</classpath>
+		</java>
 	</target>
 
 	<target name="clean" description="clean up">
