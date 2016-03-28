@@ -6,7 +6,7 @@
 	  </description>
 
 	<property name="base.dir" location="" />
-	<property name="main-class" value="coverDetecter.CoverDetecter" />
+	<property name="main-class" value="demo.Demo" />
 	<property name="jarName" value="theJar.jar" />
 	<property name="build" location="build" />
 	<property name="dist" location="dist" />
@@ -38,13 +38,9 @@
 		</zip>
 	</target>
 	
-	<target name="copy-configurator-script" description="--> copies script">
-			<copy file="${base.dir}/startOJConfigurator.bat" todir="${configurator.dir}" />
-			<copy file="${base.dir}/log4j.properties" todir="${configurator.dir}" />
-	</target>
 
 	<target name="compile" depends="clean,init,compileActual,moveClasses,addLibraries,
-		addResources,buildSubJar,buildMainJar,dist,copy-configurator-script,pack-resources">
+		addResources,buildSubJar,buildMainJar,dist,pack-resources">
 		<!-- Due to how this project is built this target overides the target in master.xml and forces the
 		 execution of several targets in this build-file through the depends parameter. The reason for doing
 		  this is that the required and expected structure for this particular jar (to enable the custom jar-
@@ -53,32 +49,10 @@
 
 	<target name="compileActual" description="compile the source">
 
-		<javac destdir="${build}/compiled" debug="true" target="${compiler.version}" includeantruntime="false">
+		<javac destdir="${build}/compiled" debug="true" includeantruntime="false">
 			<src path="${src}" />
 			<classpath>
 				<pathelement path="${lib}/jar-in-jar-loader/" />
-
-
-				<pathelement path="${lib}/runtime/comm.jar" />
-				<pathelement path="${lib}/platformlib/linux-64/comm.jar" />
-
-				<pathelement path="${lib}/runtime/com.scancoin.core.api.configurator.jar" />
-				<pathelement path="${lib}/runtime/log4j.jar" />
-
-				<pathelement path="${lib}/runtime/opencv-300.jar" />
-
-				<pathelement path="${lib}/platformlib/windows-32/swt-windows-32.jar" />
-				<!-- Doesn't matter which plattforms swt-jar. It is compiled against the API. -->
-
-				<pathelement path="${lib}/runtime/nrjavaserial.jar" />
-
-				<pathelement path="${lib}/org.eclipse.core.commands_3.3.0.I20070605-0010.jar" />
-				<pathelement path="${lib}/org.eclipse.core.jobs_3.5.1.R36x_v20100824.jar" />
-				<pathelement path="${lib}/org.eclipse.core.resources_3.6.1.R36x_v20110131-1630.jar" />
-				<pathelement path="${lib}/org.eclipse.equinox.common_3.3.0.v20070426.jar" />
-				<pathelement path="${lib}/org.eclipse.jface_3.3.0.I20070606-0010.jar" />
-				<pathelement path="${lib}/org.eclipse.ui.editors_3.6.1.r361_v20100825-0800.jar" />
-				<pathelement path="${lib}/org.eclipse.ui.workbench_3.6.1.M20100826-1330.jar" />
 
 			</classpath>
 		</javac>
@@ -87,7 +61,7 @@
 	<target name="moveClasses" description="Move .class files in preparation for jarring">
 
 		<move todir="${loader}/com/scancoin/configuration/preLoader">
-			<fileset dir="${build}/compiled/com/scancoin/configuration/preLoader" />
+			<fileset dir="${build}/compiled/binks" />
 		</move>
 		<move todir="${subJar}/">
 			<fileset dir="${build}/compiled/" />
@@ -108,11 +82,11 @@
 		<mkdir dir="${loader}/platformlib" />
 		<copy todir="${loader}/platformlib">
 			<fileset dir="${lib}/platformlib">
-				<exclude name="*/RXTXcomm.jar" />
+				
 			</fileset>
 		</copy>
 		<copy todir="${loader}/lib">
-			<fileset dir="${lib}/runtime" />
+			<fileset dir="${lib}/lib" />
 		</copy>
 	</target>
 
@@ -121,7 +95,7 @@
 		<mkdir dir="${loader}/META-INF" />
 		<touch file="${loader}/META-INF/subJarMainName.prop" />
 		<echo message="${main-class}" file="${loader}/META-INF/subJarMainName.prop" />
-		<move file="${subJar}/PlaceholderLaunchScreen.png" todir="${loader}" />
+		<move file="Resources/PlaceholderLaunchScreen.png" todir="${loader}" />
 	</target>
 
 	<target name="buildSubJar">

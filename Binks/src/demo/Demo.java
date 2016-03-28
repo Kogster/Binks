@@ -1,6 +1,6 @@
-package coverDetecter;
+package demo;
 
-public class CoverDetecter {
+public class Demo {
 
 	public static void main(String[] args) {
 		System.out.println("hej");

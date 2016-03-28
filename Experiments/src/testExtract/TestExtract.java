@@ -20,7 +20,7 @@ public class TestExtract {
 			System.out.println("Time taken 1: " + (System.currentTimeMillis() - start));
 			start = System.currentTimeMillis();
 			extractFiles2(fs);
-			System.out.println("Time taken 2: " + (System.currentTimeMillis() - start));
+			System.out.println("Time taken 2q: " + (System.currentTimeMillis() - start));
 		} catch (URISyntaxException | IOException e) {
 			System.out.println("denna var visst shit");
 		}
