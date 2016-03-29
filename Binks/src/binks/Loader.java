@@ -26,12 +26,9 @@ import org.eclipse.jdt.internal.jarinjarloader.RsrcURLStreamHandlerFactory;
 /**
  * This class will try to load all libraries in the lib/ folder in it's jar, all
  * libraries in the folder corresponding to the current platform under
- * platformlib/<osname-bitness>/ and launch a main class from a jar in it's root
- * with the main class name specified in META-INF/subJarMainName.prop.
- * META-INF/subJarMainName.prop is created in this projects ant-build file.
- * 
- * This class does not use the logger because it is run before the logger is
- * loaded to the JVM.
+ * platformlib/<osname-os.arch>/ and launch a main class from a jar in lib with
+ * the main class name specified in META-INF/MANIFEST.MF. The name is added in
+ * the ant build file
  */
 
 public class Loader {
@@ -84,7 +81,7 @@ public class Loader {
 			// libraries the sub jar main is in here
 			librariesToLoad.addAll(jarFileNames("lib/"));
 			// platform specific libraries
-			librariesToLoad.addAll(jarFileNames("platformlib/" + plattformString())); 
+			librariesToLoad.addAll(jarFileNames("platformlib/" + plattformString()));
 			URL[] jars = new URL[librariesToLoad.size()];
 			for (int i = 0; i < librariesToLoad.size(); i++) {
 				jars[i] = new URL("rsrc:" + librariesToLoad.get(i));
