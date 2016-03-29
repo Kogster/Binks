@@ -9,14 +9,13 @@ public class Demo {
 	public static void main(String[] args) {
 		System.out.println("hej");
 		Shell shell = new Shell();
-		MessageBox dialog = 
-		new MessageBox(shell, SWT.ICON_QUESTION | SWT.OK| SWT.CANCEL);
-		dialog.setText("My info");
-		dialog.setMessage("Do you really want to do this?");
+		MessageBox dialog = new MessageBox(shell, SWT.ICON_QUESTION | SWT.OK | SWT.CANCEL);
+		dialog.setText("This");
+		dialog.setMessage("is a demo");
 
 		// open dialog and await user selection
 		int returnCode = dialog.open();
-		System.out.println(returnCode);
+		System.out.println((returnCode == 32)? "is a demo": "canceled" );
 
 	}
 }

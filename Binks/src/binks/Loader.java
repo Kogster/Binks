@@ -32,12 +32,9 @@ import org.eclipse.jdt.internal.jarinjarloader.RsrcURLStreamHandlerFactory;
  */
 
 public class Loader {
-	private static ArrayList<String> jarContents;
+	private static ArrayList<String> jarContents = new ArrayList<>();
 	private static File folder = null;
 
-	static {
-		jarContents = new ArrayList<>();
-	}
 
 	public static void main(String[] args) throws Throwable {
 		LoadingScreen load = new LoadingScreen();
@@ -54,7 +51,7 @@ public class Loader {
 
 	private static void createTempDir() {
 		try {
-			folder = Files.createTempDirectory("Binks").toFile();
+			folder = Files.createTempDirectory("Binks-").toFile();
 			Runtime.getRuntime().addShutdownHook(new Thread() {
 				@Override
 				public void run() {
@@ -72,7 +69,6 @@ public class Loader {
 	}
 
 	private static ClassLoader loadClasses() {
-		System.out.println("ClassLoading");
 		ClassLoader parent = Loader.class.getClassLoader();
 		URL.setURLStreamHandlerFactory(new RsrcURLStreamHandlerFactory(parent));
 		try {
