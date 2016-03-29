@@ -15,7 +15,7 @@ public class Demo {
 
 		// open dialog and await user selection
 		int returnCode = dialog.open();
-		System.out.println((returnCode == 32)? "is a demo": "canceled" );
+		System.out.println((returnCode == SWT.OK)? "OK": "Cancel" );
 
 	}
 }

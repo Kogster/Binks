@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="binks" default="build" basedir=".">
-	<property name="ant.reuse.loader" value="true" />
-	<description>
-	    Compiles and assembles a jarfile appropriate for jar in jar launching with plattform specific swt-jar
-	  </description>
+
+	<property name="main-class" value="demo.Demo" />
+	<!-- change to reflect your program -->
+	<property name="jarName" value="theJar.jar" />
+	<!-- change to reflect your program -->
 
 	<property name="base.dir" location="" />
-	<property name="main-class" value="demo.Demo" />
-	<property name="jarName" value="theJar.jar" />
-
 	<property name="build" location="build" />
 	<property name="dist" location="dist" />
 	<property name="src" location="src" />
@@ -20,10 +18,6 @@
 
 	<target name="build" depends="clean,init,compileActual,moveClasses,addLibraries,
 		addResources,buildSubJar,buildMainJar,dist">
-		<!-- Due to how this project is built this target overides the target in master.xml and forces the
-		 execution of several targets in this build-file through the depends parameter. The reason for doing
-		  this is that the required and expected structure for this particular jar (to enable the custom jar-
-		  in-jar loading) is delt with here and not practical to intergrate in the master.xml-->
 	</target>
 
 	<target name="build-run" depends="build">
