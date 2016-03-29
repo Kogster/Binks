@@ -3,7 +3,7 @@
 
 	<property name="main-class" value="demo.Demo" />
 	<!-- change to reflect your program -->
-	<property name="jarName" value="theJar.jar" />
+	<property name="jar.name" value="demo.jar" />
 	<!-- change to reflect your program -->
 
 	<property name="base.dir" location="" />
@@ -21,7 +21,7 @@
 	</target>
 
 	<target name="build-run" depends="build">
-		<java dir="${dist}" jar="${dist}/${jarName}.jar" fork="true" failonerror="true" maxmemory="128m">
+		<java dir="${dist}" jar="${dist}/${jar.name}.jar" fork="true" failonerror="true" maxmemory="128m">
 			<arg value="-h" />
 			<classpath>
 				<pathelement path="${main-class}" />
@@ -110,7 +110,7 @@
 
 	<target name="buildMainJar" description="generate the distribution">
 		<!-- Create the distribution directory -->
-		<jar jarfile="${build}/${jarName}" basedir="${loader}">
+		<jar jarfile="${build}/${jar.name}" basedir="${loader}">
 			<manifest>
 				<attribute name="Main-Class" value="${loader-main}" />
 				<attribute name="Class-Path" value="." />
@@ -120,7 +120,7 @@
 	</target>
 
 	<target name="dist">
-		<move file="${build}/${jarName}" todir="${dist}" />
+		<move file="${build}/${jar.name}" todir="${dist}" />
 		<delete dir="${build}" />
 	</target>
 
