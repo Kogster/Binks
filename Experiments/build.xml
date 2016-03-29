@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="binks.testing" default="compile-run" basedir="." >
+<project name="binks.testing" default="compile" basedir="." >
 
 
 	<property name="main-class" value="testExtract.TestExtract" />
@@ -28,8 +28,7 @@
 		buildJar,clean">
 	</target>
 	
-	<target name="compile-run" depends="prepare,init,compileActual,addLibraries,
-			buildJar,clean,run">
+	<target name="compile-run" depends="compile, run">
 	</target>
 
 	<target name="compileActual" description="compile the source">
