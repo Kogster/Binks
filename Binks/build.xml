@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="binks" default="build" basedir=".">
 
+	<!-- change to reflect your program -->
 	<property name="main-class" value="demo.Demo" />
 	<!-- change to reflect your program -->
 	<property name="jar.name" value="demo.jar" />
-	<!-- change to reflect your program -->
 
 	<property name="base.dir" location="" />
 	<property name="build" location="build" />
