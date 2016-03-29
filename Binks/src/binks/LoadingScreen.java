@@ -30,19 +30,17 @@ public class LoadingScreen extends JFrame {
 	}
 
 	public void disposeIt() {
-		new Thread(new DisposeThread()).start();
-	}
+		new Thread(new Runnable(){
 
-	private class DisposeThread implements Runnable {
-		@Override
-		public void run() {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(1000); //Give the program time to launch in the background 
+				} catch (InterruptedException e) {
+				}
+				setVisible(false);
+				dispose();
 			}
-			dispose();
-		}
-
+		}).start();
 	}
-
 }

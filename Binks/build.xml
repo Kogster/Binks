@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="binks" default="compile" basedir=".">
+<project name="binks" default="build" basedir=".">
 	<property name="ant.reuse.loader" value="true" />
 	<description>
 	    Compiles and assembles a jarfile appropriate for jar in jar launching with plattform specific swt-jar
@@ -8,61 +8,75 @@
 	<property name="base.dir" location="" />
 	<property name="main-class" value="demo.Demo" />
 	<property name="jarName" value="theJar.jar" />
+
 	<property name="build" location="build" />
 	<property name="dist" location="dist" />
 	<property name="src" location="src" />
+	<property name="comp" location="${build}/compiled" />
 	<property name="loader" location="${build}/loader" />
 	<property name="subJar" location="${build}/subJar" />
 	<property name="lib" location="lib" />
-	<property name="loader-main" value="binks.Loaderr" />
+	<property name="loader-main" value="binks.Loader" />
 
-	<target name="jar" description="--> make a jar file for this project">
-			<delete file="${jar.file}"/>
-			<delete dir="target/temp" />
-			<delete dir="target/classes" />
-	</target>
-	
-	<target name="init" depends="clean">
-		<tstamp />
-		<!-- Create the build directory structure used by compile -->
-		<mkdir dir="${build}" />
-		<mkdir dir="${loader}" />
-		<mkdir dir="${build}/compiled" />
-		<mkdir dir="${configurator.dir}" />
-	</target>
-
-	<target name="pack-resources">
-		<delete file="${build.dir}/${ant.project.name}.zip" />
-		<zip destfile="${build.dir}/${ant.project.name}.zip">
-			<zipfileset dir="${configurator.dir}" prefix="configurator" />
-		</zip>
-	</target>
-	
-
-	<target name="compile" depends="clean,init,compileActual,moveClasses,addLibraries,
-		addResources,buildSubJar,buildMainJar,dist,pack-resources">
+	<target name="build" depends="clean,init,compileActual,moveClasses,addLibraries,
+		addResources,buildSubJar,buildMainJar,dist">
 		<!-- Due to how this project is built this target overides the target in master.xml and forces the
 		 execution of several targets in this build-file through the depends parameter. The reason for doing
 		  this is that the required and expected structure for this particular jar (to enable the custom jar-
 		  in-jar loading) is delt with here and not practical to intergrate in the master.xml-->
 	</target>
 
-	<target name="compileActual" description="compile the source">
+	<target name="build-run" depends="build">
+		<java dir="${dist}" jar="${dist}/${jarName}.jar" fork="true" failonerror="true" maxmemory="128m">
+			<arg value="-h" />
+			<classpath>
+				<pathelement path="${main-class}" />
+			</classpath>
+		</java>
+	</target>
 
-		<javac destdir="${build}/compiled" debug="true" includeantruntime="false">
+	<target name="jar" description="--> make a jar file for this project">
+		<delete file="${jar.file}" />
+		<delete dir="target/temp" />
+		<delete dir="target/classes" />
+	</target>
+
+	<target name="init" depends="clean">
+		<tstamp />
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}" />
+		<mkdir dir="${loader}" />
+		<mkdir dir="${build}/compiled" />
+	</target>
+
+
+	<target name="compileActual" description="compile the source">
+		<unzip dest="${comp}" src="${lib}/jar-in-jar-loader.zip" />
+		<javac destdir="${comp}" debug="true" includeantruntime="false">
 			<src path="${src}" />
 			<classpath>
-				<pathelement path="${lib}/jar-in-jar-loader/" />
-
+				<fileset dir="${lib}/lib">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${lib}/platformlib/Windows-amd64">
+					<!-- It is perfectly fine to build against an API version for a 
+					different OS then your current one. Only the API is used at compile 
+					time and that should really be the same -->
+					<include name="**/*.jar" />
+				</fileset>
 			</classpath>
 		</javac>
 	</target>
 
 	<target name="moveClasses" description="Move .class files in preparation for jarring">
 
-		<move todir="${loader}/com/scancoin/configuration/preLoader">
+		<move todir="${loader}/binks">
 			<fileset dir="${build}/compiled/binks" />
 		</move>
+		<move todir="${loader}/org/eclipse">
+			<fileset dir="${build}/compiled/org/eclipse" />
+		</move>
+
 		<move todir="${subJar}/">
 			<fileset dir="${build}/compiled/" />
 		</move>
@@ -76,13 +90,10 @@
 				<include name="*.jar" />
 			</fileset>
 		</copy>
-		<copy todir="${loader}">
-			<fileset dir="${lib}/jar-in-jar-loader/" />
-		</copy>
 		<mkdir dir="${loader}/platformlib" />
 		<copy todir="${loader}/platformlib">
 			<fileset dir="${lib}/platformlib">
-				
+
 			</fileset>
 		</copy>
 		<copy todir="${loader}/lib">
@@ -91,15 +102,11 @@
 	</target>
 
 	<target name="addResources">
-		<!-- add file with name of the main class that contains main so that the loader can find it. -->
-		<mkdir dir="${loader}/META-INF" />
-		<touch file="${loader}/META-INF/subJarMainName.prop" />
-		<echo message="${main-class}" file="${loader}/META-INF/subJarMainName.prop" />
-		<move file="Resources/PlaceholderLaunchScreen.png" todir="${loader}" />
+		<copy file="Resources/PlaceholderLaunchScreen.png" todir="${loader}" />
 	</target>
 
 	<target name="buildSubJar">
-		<jar jarfile="${loader}/Configuration.jar" basedir="${subJar}">
+		<jar jarfile="${loader}/lib/loadee.jar" basedir="${subJar}">
 			<manifest>
 				<attribute name="Main-Class" value="{main-class}" />
 				<attribute name="Class-Path" value="." />
@@ -113,14 +120,14 @@
 			<manifest>
 				<attribute name="Main-Class" value="${loader-main}" />
 				<attribute name="Class-Path" value="." />
-				<attribute name="Rscr" value="." />
+				<attribute name="Launch-main" value="${main-class}" />
 			</manifest>
 		</jar>
 	</target>
 
 	<target name="dist">
-		<move file="${build}/${jarName}" todir="${configurator.dir}" />
-		<echo message="${build}/${jarName}   ${dist}" />
+		<move file="${build}/${jarName}" todir="${dist}" />
+		<delete dir="${build}" />
 	</target>
 
 
