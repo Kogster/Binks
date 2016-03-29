@@ -81,13 +81,10 @@ public class Loader {
 		try {
 			// Jar libraries to load
 			ArrayList<String> librariesToLoad = new ArrayList<>();
-			librariesToLoad.addAll(jarFileNames("lib/")); // libraries the sub
-															// jar main is in
-															// here
-			librariesToLoad.addAll(jarFileNames("platformlib/" + plattformString())); // platform
-																						// specific
-																						// libraries
-
+			// libraries the sub jar main is in here
+			librariesToLoad.addAll(jarFileNames("lib/"));
+			// platform specific libraries
+			librariesToLoad.addAll(jarFileNames("platformlib/" + plattformString())); 
 			URL[] jars = new URL[librariesToLoad.size()];
 			for (int i = 0; i < librariesToLoad.size(); i++) {
 				jars[i] = new URL("rsrc:" + librariesToLoad.get(i));
@@ -96,15 +93,6 @@ public class Loader {
 
 			ClassLoader cl = new URLClassLoader(jars, parent);
 
-			// try {
-			// Class.forName("org.eclipse.swt.widgets.Display", true, cl);
-			// // probeExistence(cl); //can be used for debugging classloading
-			// } catch (ClassNotFoundException e) {
-			// System.err
-			// .println("Launch failed: Failed to load class from jar\n"
-			// + e.getMessage());
-			// throw new RuntimeException(e);
-			// }
 			System.out.println("ClassLoading - done");
 			return cl;
 		} catch (MalformedURLException e) {
@@ -179,7 +167,7 @@ public class Loader {
 	}
 
 	/*
-	 * Returns a string list of filenames for jars in the containing jar 
+	 * Returns a string list of filenames for jars in the containing jar
 	 */
 	private static List<String> jarFileNames(String filter) {
 		if (jarContents.size() == 0) {
@@ -194,9 +182,10 @@ public class Loader {
 		}
 		return list;
 	}
-	
+
 	/*
-	 * This method finds all the filenames in the jar and adds them to the static list jarContents.
+	 * This method finds all the filenames in the jar and adds them to the
+	 * static list jarContents.
 	 */
 	private static void probeJar() {
 		long time = System.currentTimeMillis();
@@ -247,44 +236,6 @@ public class Loader {
 	}
 
 	private static String plattformString() {
-		// String osName = System.getProperty("os.name");
-		// String fileName = (osName.equalsIgnoreCase("linux") ? "linux" : "")
-		// + (osName.toLowerCase().contains("windows") ? "windows" : "")
-		// // something for arm perhaps.
-		// + "-"
-		// + (System.getProperty("os.arch").equals("amd64") ? "64" : "")
-		// + (System.getProperty("os.arch").equals("x86") ? "32" : "")
-		// // something for arm perhaps
-		// ;
 		return System.getProperty("os.name") + "-" + System.getProperty("os.arch");
-	}
-
-	private static void probeLibraryExistence(String className, ClassLoader cl) {
-		try {
-			Class.forName(className, true, cl);
-			System.out.println(className + "\t\t\tis there");
-		} catch (ClassNotFoundException e) {
-			System.out.println(className + "\t\t\tis gone");
-		}
-
-	}
-
-	@SuppressWarnings("unused")
-	private static void probeExistence(ClassLoader cl) throws ClassNotFoundException {
-		String[] libraryNames = { "com.scancoin.configuration.Configurator", "org.eclipse.swt.widgets.MessageBox",
-				"org.eclipse.swt.widgets.Shell", "org.eclipse.swt.layout.RowData",
-				"org.eclipse.core.commands.util.Tracing", "org.eclipse.core.commands.State",
-				"org.eclipse.core.runtime.jobs.ProgressProvider", "org.eclipse.core.runtime.jobs.ILock",
-				"org.eclipse.core.resources.IStorage", "org.eclipse.core.resources.mapping.ModeLStatus",
-				"org.eclipse.core.runtime.Status", "org.eclipse.core.runtime.Path",
-				"org.eclipse.jface.dialogs.MessageDialog", "org.eclipse.jface.dialogs.Dialog",
-				"org.eclipse.jface.wizard.WizardPage", "org.eclipse.ui.texteditor.TaskRuleraction",
-				"org.eclipse.ui.views.IViewRegistry", "org.eclipse.ui.wizards.IWizardRegistry",
-				"com.thoughtworks.xstream.XStreamException", };
-
-		for (String s : libraryNames) {
-			probeLibraryExistence(s, cl);
-		}
-		System.out.println();
 	}
 }
