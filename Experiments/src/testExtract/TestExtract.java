@@ -58,7 +58,6 @@ public class TestExtract {
 						bos.flush();
 						bos.close();
 						of.close();
-						of.close();
 						is.close();
 					} catch (IOException e) {
 						System.out.println("shit");

@@ -229,6 +229,7 @@ public class Loader {
 	}
 
 	private static String plattformString() {
-		return System.getProperty("os.name") + "-" + System.getProperty("os.arch");
+		String os = System.getProperty("os.name");
+		return  (os.startsWith("Windows")? "Windows" : os)+ "-" + System.getProperty("os.arch");
 	}
 }
